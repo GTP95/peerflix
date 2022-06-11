@@ -1,18 +1,18 @@
-var torrentStream = require('torrent-stream')
-var http = require('http')
-var fs = require('fs')
-var rangeParser = require('range-parser')
-var xtend = require('xtend')
-var url = require('url')
-var mime = require('mime')
-var pump = require('pump')
+const torrentStream = require('torrent-stream')
+const http = require('http')
+const fs = require('fs')
+const rangeParser = require('range-parser')
+const xtend = require('xtend')
+const url = require('url')
+const mime = require('mime')
+const pump = require('pump')
 
-var parseBlocklist = function (filename) {
+const parseBlocklist = function (filename) {
   // TODO: support gzipped files
-  var blocklistData = fs.readFileSync(filename, { encoding: 'utf8' })
-  var blocklist = []
+  const blocklistData = fs.readFileSync(filename, { encoding: 'utf8' })
+  const blocklist = []
   blocklistData.split('\n').forEach(function (line) {
-    var match = null
+    let match = null
     if ((match = /^\s*[^#].*?\s*:\s*([a-f0-9.:]+?)\s*-\s*([a-f0-9.:]+?)\s*$/.exec(line))) {
       blocklist.push({
         start: match[1],
@@ -23,17 +23,17 @@ var parseBlocklist = function (filename) {
   return blocklist
 }
 
-var truthy = function () {
+const truthy = function () {
   return true
 }
 
-var createServer = function (e, opts) {
-  var server = http.createServer()
-  var index = opts.index
-  var getType = opts.type || mime.getType.bind(mime)
-  var filter = opts.filter || truthy
+const createServer = function (e, opts) {
+  const server = http.createServer()
+  let index = opts.index
+  const getType = opts.type || mime.getType.bind(mime)
+  const filter = opts.filter || truthy
 
-  var onready = function () {
+  const onready = function () {
     if (typeof index !== 'number') {
       index = e.files.reduce(function (a, b) {
         return a.length > b.length ? a : b
@@ -51,29 +51,29 @@ var createServer = function (e, opts) {
   else e.on('ready', onready)
 
   server.on('request', function (request, response) {
-    var u = url.parse(request.url)
-    var host = request.headers.host || 'localhost'
+    const u = url.parse(request.url)
+    const host = request.headers.host || 'localhost'
 
-    var toPlaylist = function () {
-      var toEntry = function (file, i) {
+    const toPlaylist = function () {
+      const toEntry = function (file, i) {
         return '#EXTINF:-1,' + file.path + '\n' + 'http://' + host + '/' + i
       }
 
       return '#EXTM3U\n' + e.files.filter(filter).map(toEntry).join('\n')
     }
 
-    var toJSON = function () {
-      var totalPeers = e.swarm.wires
+    const toJSON = function () {
+      const totalPeers = e.swarm.wires
 
-      var activePeers = totalPeers.filter(function (wire) {
+      const activePeers = totalPeers.filter(function (wire) {
         return !wire.peerChoking
       })
 
-      var totalLength = e.files.reduce(function (prevFileLength, currFile) {
+      const totalLength = e.files.reduce(function (prevFileLength, currFile) {
         return prevFileLength + currFile.length
       }, 0)
 
-      var toEntry = function (file, i) {
+      const toEntry = function (file, i) {
         return {
           name: file.name,
           url: 'http://' + host + '/' + i,
@@ -81,8 +81,8 @@ var createServer = function (e, opts) {
         }
       }
 
-      var swarmStats = {
-        totalLength: totalLength,
+      const swarmStats = {
+        totalLength,
         downloaded: e.swarm.downloaded,
         uploaded: e.swarm.uploaded,
         downloadSpeed: parseInt(e.swarm.downloadSpeed(), 10),
@@ -102,8 +102,8 @@ var createServer = function (e, opts) {
       response.setHeader('Access-Control-Allow-Origin', request.headers.origin)
       response.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
       response.setHeader(
-          'Access-Control-Allow-Headers',
-          request.headers['access-control-request-headers'])
+        'Access-Control-Allow-Headers',
+        request.headers['access-control-request-headers'])
       response.setHeader('Access-Control-Max-Age', '1728000')
 
       response.end()
@@ -120,7 +120,7 @@ var createServer = function (e, opts) {
     }
 
     if (u.pathname === '/.json') {
-      var json = toJSON()
+      const json = toJSON()
       response.setHeader('Content-Type', 'application/json; charset=utf-8')
       response.setHeader('Content-Length', Buffer.byteLength(json))
       response.end(json)
@@ -128,7 +128,7 @@ var createServer = function (e, opts) {
     }
 
     if (u.pathname === '/.m3u') {
-      var playlist = toPlaylist()
+      const playlist = toPlaylist()
       response.setHeader('Content-Type', 'application/x-mpegurl; charset=utf-8')
       response.setHeader('Content-Length', Buffer.byteLength(playlist))
       response.end(playlist)
@@ -139,7 +139,7 @@ var createServer = function (e, opts) {
       if (u.pathname.slice(1) === file.name) u.pathname = '/' + i
     })
 
-    var i = Number(u.pathname.slice(1))
+    const i = Number(u.pathname.slice(1))
 
     if (isNaN(i) || i >= e.files.length) {
       response.statusCode = 404
@@ -147,8 +147,8 @@ var createServer = function (e, opts) {
       return
     }
 
-    var file = e.files[i]
-    var range = request.headers.range
+    const file = e.files[i]
+    let range = request.headers.range
     range = range && rangeParser(file.length, range)[0]
     response.setHeader('Accept-Ranges', 'bytes')
     response.setHeader('Content-Type', getType(file.name))
@@ -181,7 +181,7 @@ module.exports = function (torrent, opts) {
   // Parse blocklist
   if (opts.blocklist) opts.blocklist = parseBlocklist(opts.blocklist)
 
-  var engine = torrentStream(torrent, xtend(opts, {port: opts.peerPort}))
+  const engine = torrentStream(torrent, xtend(opts, { port: opts.peerPort }))
 
   // Just want torrent-stream to list files.
   if (opts.list) return engine

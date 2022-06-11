@@ -17,29 +17,28 @@
     "peerflix": "./app.js"
   },
   "dependencies": {
-    "airplayer": "^2.0.0",
-    "buffer-from": "^1.0.0",
+    "buffer-from": "^1.1.2",
     "clivas": "^0.2.0",
-    "inquirer": "^5.0.1",
+    "inquirer": "^8.2.4",
     "keypress": "^0.2.1",
-    "mime": "^2.2.0",
-    "network-address": "^1.1.0",
+    "mime": "^3.0.0",
+    "network-address": "^1.1.2",
     "numeral": "^2.0.6",
-    "open": "0.0.5",
-    "optimist": "^0.6.1",
-    "parse-torrent": "^5.4.0",
-    "pump": "^2.0.0",
-    "range-parser": "^1.0.0",
-    "rc": "^1.1.6",
-    "torrent-stream": "^1.0.1",
+    "open": "8.4.0",
+    "optimist": "^0.5.2",
+    "parse-torrent": "^9.1.5",
+    "pump": "^3.0.0",
+    "range-parser": "^1.2.1",
+    "rc": "^1.2.8",
+    "torrent-stream": "^1.2.1",
     "winreg": "1.2.4",
-    "xtend": "^4.0.0"
+    "xtend": "^4.0.2"
   },
   "devDependencies": {
-    "standard": "^10.0.3"
+    "standard": "^17.0.0"
   },
   "optionalDependencies": {
-    "airplayer": "^2.0.0"
+    "airplayer": "^1.0.0"
   },
   "scripts": {
     "test": "standard"
